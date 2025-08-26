@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metodología Interactiva de Análisis de Datos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Chosen Palette: Dark Blue/Grey (#1E293B) with Vibrant Teal (#2DD4BF) and Light Grey (#F1F5F9) accents -->
+    <!-- Application Structure Plan: A dynamic, dark-themed SPA with a dashboard-like feel. The main navigation guides the user through the key concepts (Inicio, El Proceso, Modelos). The "Inicio" section now features a dynamic radar chart to visually compare the four types of analysis, offering an engaging introduction. "El Proceso" remains the core interactive flow, but with enhanced visual steps and a polished, dynamic bar chart. This structure prioritizes a modern aesthetic and makes complex information digestible through interactive, data-driven components. -->
+    <!-- Visualization & Content Choices: The four analysis types are visualized in a responsive radar chart (Chart.js) for quick, multi-dimensional comparison. The core analysis lifecycle is an updated clickable stepper (HTML/CSS) for a sleek user flow. Code examples are in tabbed containers with a dark theme for better readability. The bar chart in the visualization phase is styled to match the new theme, demonstrating interactivity with a vehicle filter. This design avoids static content and provides a more premium, interactive learning experience. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #1e293b;
+        color: #f1f5f9;
+      }
+      .nav-link {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+      }
+      .nav-link.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 2px;
+        background-color: #2dd4bf;
+      }
+      .content-section {
+        display: none;
+      }
+      .content-section.active {
+        display: block;
+      }
+      .step {
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      .step.active {
+        background-color: #374151;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .step.active .step-circle {
+        background-color: #2dd4bf;
+        color: #1e293b;
+        font-weight: 700;
+      }
+      .tab-button {
+        transition: all 0.3s ease;
+      }
+      .tab-button.active {
+        color: #2dd4bf;
+        border-bottom: 2px solid #2dd4bf;
+      }
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 300px;
+        max-height: 400px;
+      }
+      @media (min-width: 768px) {
+        .chart-container {
+          height: 400px;
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <header class="bg-gray-900 shadow-xl sticky top-0 z-50">
+      <nav
+        class="container mx-auto px-6 py-4 flex justify-between items-center"
+      >
+        <h1 class="text-xl md:text-2xl font-bold text-gray-100">
+          Análisis de Datos Interactivo
+        </h1>
+        <div class="flex space-x-4 md:space-x-8 text-sm md:text-base">
+          <a class="nav-link active" data-target="inicio">Inicio</a>
+          <a class="nav-link" data-target="proceso">El Proceso</a>
+          <a class="nav-link" data-target="modelos">Modelos de Ciclo de Vida</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+      <!-- Seccion: Inicio -->
+      <section id="inicio" class="content-section active">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-2 text-white">
+            Comprendiendo el Análisis de Datos
+          </h2>
+          <p class="text-lg text-gray-400 max-w-3xl mx-auto">
+            El análisis de datos es el proceso de inspeccionar, limpiar,
+            transformar y modelar datos con el objetivo de descubrir información
+            útil, informar conclusiones y apoyar la toma de decisiones.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          <div
+            class="bg-gray-800 p-6 rounded-lg shadow-xl transform hover:scale-105 transition-transform duration-300"
+          >
+            <h3 class="font-bold text-xl mb-2 text-teal-400">
+              Análisis Descriptivo
+            </h3>
+            <p class="font-semibold mb-2 text-gray-300">¿Qué pasó?</p>
+            <p class="text-gray-400">
+              Resume datos históricos para entender cambios en el negocio. Es la
+              base de la inteligencia de negocios.
+            </p>
+          </div>
+          <div
+            class="bg-gray-800 p-6 rounded-lg shadow-xl transform hover:scale-105 transition-transform duration-300"
+          >
+            <h3 class="font-bold text-xl mb-2 text-teal-400">
+              Análisis Diagnóstico
+            </h3>
+            <p class="font-semibold mb-2 text-gray-300">¿Por qué pasó?</p>
+            <p class="text-gray-400">
+              Profundiza en los datos para encontrar las causas de los
+              resultados, identificando por qué ocurrieron ciertos eventos.
+            </p>
+          </div>
+          <div
+            class="bg-gray-800 p-6 rounded-lg shadow-xl transform hover:scale-105 transition-transform duration-300"
+          >
+            <h3 class="font-bold text-xl mb-2 text-teal-400">
+              Análisis Predictivo
+            </h3>
+            <p class="font-semibold mb-2 text-gray-300">¿Qué podría pasar?</p>
+            <p class="text-gray-400">
+              Utiliza datos históricos y algoritmos para pronosticar resultados
+              futuros, permitiendo la anticipación de tendencias.
+            </p>
+          </div>
+          <div
+            class="bg-gray-800 p-6 rounded-lg shadow-xl transform hover:scale-105 transition-transform duration-300"
+          >
+            <h3 class="font-bold text-xl mb-2 text-teal-400">
+              Análisis Prescriptivo
+            </h3>
+            <p class="font-semibold mb-2 text-gray-300">¿Qué acciones tomar?</p>
+            <p class="text-gray-400">
+              Recomienda acciones específicas para optimizar resultados,
+              basándose en predicciones y simulaciones.
+            </p>
+          </div>
+        </div>
+        <div class="text-center mb-6">
+          <h3 class="text-2xl font-bold text-white mb-2">
+            Impacto y Complejidad
+          </h3>
+          <p class="text-gray-400 max-w-2xl mx-auto">
+            Esta visualización ilustra el valor y la complejidad de cada tipo de
+            análisis.
+          </p>
+        </div>
+        <div class="chart-container bg-gray-800 p-6 rounded-lg shadow-xl">
+          <canvas id="analysisRadarChart"></canvas>
+        </div>
+      </section>
+
+      <!-- Seccion: El Proceso -->
+      <section id="proceso" class="content-section">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-2 text-white">
+            El Viaje del Análisis de Datos
+          </h2>
+          <p class="text-lg text-gray-400 max-w-3xl mx-auto">
+            Explora cada fase del ciclo de vida del análisis de datos. Haz clic
+            en cada paso para ver la teoría, los ejemplos de código práctico con
+            Python y MySQL, y las visualizaciones correspondientes.
+          </p>
+        </div>
+        <div class="lg:flex lg:space-x-8">
+          <!-- Pasos del Proceso -->
+          <div class="lg:w-1/3 mb-8 lg:mb-0">
+            <div id="steps-container" class="space-y-4">
+              <!-- Los pasos se generan dinámicamente con JS -->
+            </div>
+          </div>
+          <!-- Contenido del Paso -->
+          <div class="lg:w-2/3 bg-gray-800 p-6 rounded-lg shadow-xl">
+            <h3 id="step-title" class="text-2xl font-bold mb-4 text-white"></h3>
+            <p id="step-description" class="text-gray-400 mb-6"></p>
+
+            <div id="code-section" class="mb-6">
+              <div class="flex border-b border-gray-700 mb-4">
+                <button
+                  class="tab-button py-2 px-4 font-semibold text-gray-400"
+                  data-target="python-code"
+                >
+                  Python
+                </button>
+                <button
+                  class="tab-button py-2 px-4 font-semibold text-gray-400"
+                  data-target="sql-code"
+                >
+                  MySQL
+                </button>
+              </div>
+              <div
+                id="python-code"
+                class="code-content bg-gray-900 text-white p-4 rounded-md overflow-x-auto text-sm"
+              >
+                <pre><code id="python-code-block"></code></pre>
+              </div>
+              <div
+                id="sql-code"
+                class="code-content hidden bg-gray-900 text-white p-4 rounded-md overflow-x-auto text-sm"
+              >
+                <pre><code id="sql-code-block"></code></pre>
+              </div>
+            </div>
+
+            <div id="visualization-section" class="hidden">
+              <h4 class="text-xl font-bold mb-4 text-white">
+                Visualización de Ejemplo
+              </h4>
+              <p class="text-gray-400 mb-4">
+                Esta gráfica interactiva demuestra un resultado típico de la
+                fase de visualización. Puedes filtrar los datos para explorar
+                diferentes perspectivas.
+              </p>
+              <div class="mb-4">
+                <label
+                  for="vehicle-filter"
+                  class="block text-sm font-medium text-gray-300"
+                  >Filtrar por Tipo de Vehículo:</label
+                >
+                <select
+                  id="vehicle-filter"
+                  class="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-gray-700 border-gray-600 focus:outline-none focus:ring-teal-500 focus:border-teal-500 text-white rounded-md"
+                >
+                  <option value="todos">Todos</option>
+                  <option value="furgoneta">Furgoneta</option>
+                  <option value="camion">Camión</option>
+                  <option value="motocicleta">Motocicleta</option>
+                </select>
+              </div>
+              <div class="chart-container bg-gray-900 p-4 rounded-lg">
+                <canvas id="mainChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Seccion: Modelos de Ciclo de Vida -->
+      <section id="modelos" class="content-section">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-2 text-white">
+            Modelos de Ciclo de Vida del Análisis
+          </h2>
+          <p class="text-lg text-gray-400 max-w-3xl mx-auto">
+            Existen marcos de trabajo estandarizados que guían los proyectos de
+            datos. Dos de los más influyentes son CRISP-DM y SEMMA, que
+            proporcionan una estructura iterativa para el éxito.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="bg-gray-800 p-8 rounded-lg shadow-xl">
+            <h3 class="text-2xl font-bold mb-4 text-teal-400">CRISP-DM</h3>
+            <p class="mb-4 text-gray-400">
+              El "CRoss Industry Standard Process for Data Mining" es un modelo
+              robusto y flexible que se centra en los objetivos del negocio.
+            </p>
+            <ul class="space-y-2 text-gray-300">
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Comprensión del Negocio:</strong> Definir objetivos.
+              </li>
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Comprensión de los Datos:</strong> Recopilar y explorar
+                datos.
+              </li>
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Preparación de los Datos:</strong> Limpiar y
+                transformar.
+              </li>
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Modelado:</strong> Aplicar técnicas de análisis.
+              </li>
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Evaluación:</strong> Validar los modelos.
+              </li>
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Despliegue:</strong> Poner en producción.
+              </li>
+            </ul>
+          </div>
+          <div class="bg-gray-800 p-8 rounded-lg shadow-xl">
+            <h3 class="text-2xl font-bold mb-4 text-teal-400">SEMMA</h3>
+            <p class="mb-4 text-gray-400">
+              Desarrollado por SAS Institute, SEMMA es un proceso lógico que
+              guía al analista desde los datos hasta los hallazgos.
+            </p>
+            <ul class="space-y-2 text-gray-300">
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Sample (Muestrear):</strong> Extraer un subconjunto de
+                datos.
+              </li>
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Explore (Explorar):</strong> Visualizar y entender los
+                datos.
+              </li>
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Modify (Modificar):</strong> Preparar y transformar
+                variables.
+              </li>
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Model (Modelar):</strong> Construir modelos predictivos.
+              </li>
+              <li class="flex items-start">
+                <span class="text-teal-500 font-bold mr-2">&#10148;</span>
+                <strong>Assess (Evaluar):</strong> Comprobar la fiabilidad del
+                modelo.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const navLinks = document.querySelectorAll(".nav-link");
+      const contentSections = document.querySelectorAll(".content-section");
+      const stepsContainer = document.getElementById("steps-container");
+      const stepTitle = document.getElementById("step-title");
+      const stepDescription = document.getElementById("step-description");
+      const pythonCodeBlock = document.getElementById("python-code-block");
+      const sqlCodeBlock = document.getElementById("sql-code-block");
+      const codeSection = document.getElementById("code-section");
+      const vizSection = document.getElementById("visualization-section");
+      const tabButtons = document.querySelectorAll(".tab-button");
+      const codeContents = document.querySelectorAll(".code-content");
+
+      const processData = {
+        steps: [
+          {
+            id: "definicion",
+            title: "1. Definición del Problema",
+            description:
+              "Esta fase inicial es crucial. Implica comprender a fondo el problema de negocio y las expectativas de los interesados. Se definen los objetivos, las preguntas clave y las métricas de éxito del proyecto.",
+            pythonCode: `
+# Documentar los objetivos del proyecto
+objetivos_proyecto = {
+    "objetivo_principal": "Reducir la rotación de clientes en un 10%.",
+    "preguntas_clave": [
+        "¿Cuáles son los principales predictores de la rotación?",
+        "¿Qué segmentos de clientes tienen mayor riesgo?"
+    ],
+    "metricas_exito": ["Reducción de la tasa de rotación", "Aumento de la retención"]
+}
+
+print("Objetivos definidos.")`,
+            sqlCode: `-- No se aplica directamente SQL en esta fase.
+-- La definición del problema es conceptual y estratégica.
+-- Se documentan los requisitos antes de interactuar con la base de datos.`,
+          },
+          {
+            id: "recopilacion",
+            title: "2. Recopilación de Datos",
+            description:
+              "Se identifican, adquieren y almacenan los datos necesarios de diversas fuentes (internas o externas). Estos datos pueden ser estructurados (bases de datos) o no estructurados (texto, imágenes).",
+            pythonCode: `
+import pandas as pd
+from sqlalchemy import create_engine
+
+# Simular la lectura de datos de un archivo CSV
+datos_clientes = pd.read_csv('clientes.csv')
+
+# Conectar a la base de datos y guardar los datos
+# Se necesita pymysql: pip install pymysql
+engine = create_engine('mysql+pymysql://user:pass@host/database')
+datos_clientes.to_sql('clientes', con=engine, if_exists='replace', index=False)
+
+print(f"{len(datos_clientes)} registros guardados en MySQL.")`,
+            sqlCode: `
+-- Crear la tabla para almacenar los datos de clientes
+CREATE TABLE IF NOT EXISTS clientes (
+    id_cliente INT PRIMARY KEY,
+    edad INT,
+    genero VARCHAR(10),
+    antiguedad_meses INT,
+    abandono BOOLEAN
+);
+
+-- Cargar datos desde un archivo CSV (ejemplo de comando de MySQL)
+LOAD DATA INFILE '/path/to/clientes.csv'
+INTO TABLE clientes
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\\n'
+IGNORE 1 ROWS;`,
+          },
+          {
+            id: "limpieza",
+            title: "3. Limpieza y Preparación",
+            description:
+              "A menudo la fase que más tiempo consume. Se corrigen errores, se manejan valores nulos, se eliminan duplicados y se transforman los datos para que sean consistentes y adecuados para el análisis.",
+            pythonCode: `
+import pandas as pd
+
+# Cargar datos (simulado)
+df = pd.read_csv('clientes_sucios.csv')
+
+# Manejar valores nulos (imputar con la media)
+df['edad'].fillna(df['edad'].mean(), inplace=True)
+
+# Eliminar duplicados
+df.drop_duplicates(inplace=True)
+
+# Corregir tipos de datos
+df['antiguedad_meses'] = pd.to_numeric(df['antiguedad_meses'], errors='coerce')
+
+print("Datos limpios y preparados.")
+print(df.info())`,
+            sqlCode: `
+-- Manejar valores nulos: actualizar la edad nula con el promedio
+UPDATE clientes
+SET edad = (SELECT AVG(edad) FROM (SELECT * FROM clientes) AS temp)
+WHERE edad IS NULL;
+
+-- Eliminar duplicados (basado en id_cliente)
+DELETE c1 FROM clientes c1
+INNER JOIN clientes c2 
+WHERE
+    c1.id < c2.id AND
+    c1.id_cliente = c2.id_cliente;
+
+-- Estandarizar valores de texto
+UPDATE clientes SET genero = UPPER(genero);`,
+          },
+          {
+            id: "analisis",
+            title: "4. Análisis de Datos",
+            description:
+              "Se aplican técnicas estadísticas y de modelado para extraer hallazgos. Esto incluye análisis exploratorio (EDA), pruebas de hipótesis y la construcción de modelos predictivos para responder a las preguntas del negocio.",
+            pythonCode: `
+import pandas as pd
+from scipy.stats import ttest_ind
+
+# Cargar datos limpios
+df = pd.read_csv('clientes_limpios.csv')
+
+# Análisis exploratorio: correlación
+print("Correlación con la variable 'abandono':")
+print(df.corr()['abandono'])
+
+# Prueba de hipótesis: ¿La antigüedad media difiere entre los que abandonan y los que no?
+abandonaron = df[df['abandono'] == True]['antiguedad_meses']
+no_abandonaron = df[df['abandono'] == False]['antiguedad_meses']
+
+stat, p_value = ttest_ind(abandonaron, no_abandonaron, nan_policy='omit')
+print(f"Prueba t: p-value = {p_value:.4f}")`,
+            sqlCode: `
+-- Calcular estadísticas descriptivas por grupo de abandono
+SELECT
+    abandono,
+    COUNT(*) AS total_clientes,
+    AVG(edad) AS edad_promedio,
+    AVG(antiguedad_meses) AS antiguedad_promedio
+FROM
+    clientes
+GROUP BY
+    abandono;
+
+-- Identificar clientes con alta antigüedad que abandonaron
+SELECT id_cliente, antiguedad_meses
+FROM clientes
+WHERE abandono = TRUE AND antiguedad_meses > 48;`,
+          },
+          {
+            id: "visualizacion",
+            title: "5. Visualización y Comunicación",
+            description:
+              "Se presentan los hallazgos de forma visual y comprensible. Se utilizan gráficos, tablas y dashboards para comunicar la historia que cuentan los datos a los interesados, facilitando la toma de decisiones.",
+            pythonCode: `
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Cargar datos
+df = pd.read_csv('clientes_limpios.csv')
+
+# Gráfico de barras: Tasa de abandono por género
+sns.barplot(x='genero', y='abandono', data=df)
+plt.title('Tasa de Abandono por Género')
+plt.ylabel('Tasa de Abandono Promedio')
+plt.show() # Muestra el gráfico
+
+# Guardar el gráfico
+plt.savefig('abandono_por_genero.png')`,
+            sqlCode: `-- SQL se usa para preparar los datos para la visualización.
+-- La creación de gráficos se realiza en herramientas como Python, Tableau o Power BI.
+
+-- Consulta para obtener datos agregados listos para un gráfico de barras
+SELECT
+    genero,
+    AVG(CASE WHEN abandono = TRUE THEN 1 ELSE 0 END) AS tasa_abandono
+FROM
+    clientes
+GROUP BY
+    genero;`,
+          },
+        ],
+      };
+
+      let mainChart;
+      let radarChart;
+
+      function init() {
+        renderSteps();
+        setupNav();
+        setupTabs();
+        setupStepListeners();
+        selectStep(processData.steps[0].id);
+        setupFilter();
+        renderRadarChart();
+      }
+
+      function setupNav() {
+        navLinks.forEach((link) => {
+          link.addEventListener("click", () => {
+            const targetId = link.getAttribute("data-target");
+
+            navLinks.forEach((l) => l.classList.remove("active"));
+            link.classList.add("active");
+
+            contentSections.forEach((section) => {
+              section.classList.remove("active");
+              if (section.id === targetId) {
+                section.classList.add("active");
+              }
+            });
+          });
+        });
+      }
+
+      function renderSteps() {
+        let stepsHTML = "";
+        processData.steps.forEach((step, index) => {
+          stepsHTML += `
+                <div id="step-${
+                  step.id
+                }" class="step bg-gray-800 border border-gray-700 rounded-lg p-4 flex items-center space-x-4 hover:bg-gray-700 shadow-lg">
+                    <div class="step-circle flex-shrink-0 bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center font-bold text-gray-400">${
+                      index + 1
+                    }</div>
+                    <div>
+                        <h4 class="font-bold text-lg text-white">${
+                          step.title
+                        }</h4>
+                    </div>
+                </div>
+            `;
+        });
+        stepsContainer.innerHTML = stepsHTML;
+      }
+
+      function setupStepListeners() {
+        document.querySelectorAll(".step").forEach((stepEl) => {
+          stepEl.addEventListener("click", () => {
+            const stepId = stepEl.id.replace("step-", "");
+            selectStep(stepId);
+          });
+        });
+      }
+
+      function selectStep(stepId) {
+        const step = processData.steps.find((s) => s.id === stepId);
+        if (!step) return;
+
+        document
+          .querySelectorAll(".step")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById(`step-${step.id}`).classList.add("active");
+
+        stepTitle.textContent = step.title;
+        stepDescription.textContent = step.description;
+        pythonCodeBlock.textContent = step.pythonCode.trim();
+        sqlCodeBlock.textContent = step.sqlCode.trim();
+
+        if (step.id === "visualizacion") {
+          codeSection.style.display = "none";
+          vizSection.style.display = "block";
+          renderChart("todos");
+        } else {
+          codeSection.style.display = "block";
+          vizSection.style.display = "none";
+        }
+      }
+
+      function setupTabs() {
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const targetId = button.getAttribute("data-target");
+            tabButtons.forEach((b) => {
+              b.classList.remove("active");
+              b.classList.add("text-gray-400");
+            });
+            button.classList.add("active");
+            button.classList.remove("text-gray-400");
+
+            codeContents.forEach((content) => {
+              content.classList.add("hidden");
+              if (content.id === targetId) {
+                content.classList.remove("hidden");
+              }
+            });
+          });
+        });
+        tabButtons[0].click();
+      }
+
+      function setupFilter() {
+        document
+          .getElementById("vehicle-filter")
+          .addEventListener("change", (e) => {
+            renderChart(e.target.value);
+          });
+      }
+
+      function renderRadarChart() {
+        const ctx = document
+          .getElementById("analysisRadarChart")
+          .getContext("2d");
+        const data = {
+          labels: ["Descriptivo", "Diagnóstico", "Predictivo", "Prescriptivo"],
+          datasets: [
+            {
+              label: "Complejidad",
+              data: [2, 3, 4, 5],
+              backgroundColor: "rgba(45, 212, 191, 0.2)",
+              borderColor: "rgba(45, 212, 191, 1)",
+              pointBackgroundColor: "rgba(45, 212, 191, 1)",
+              pointBorderColor: "#fff",
+              pointHoverBackgroundColor: "#fff",
+              pointHoverBorderColor: "rgba(45, 212, 191, 1)",
+              borderWidth: 2,
+              fill: true,
+            },
+            {
+              label: "Valor de Negocio",
+              data: [3, 4, 4.5, 5],
+              backgroundColor: "rgba(139, 92, 246, 0.2)",
+              borderColor: "rgba(139, 92, 246, 1)",
+              pointBackgroundColor: "rgba(139, 92, 246, 1)",
+              pointBorderColor: "#fff",
+              pointHoverBackgroundColor: "#fff",
+              pointHoverBorderColor: "rgba(139, 92, 246, 1)",
+              borderWidth: 2,
+              fill: true,
+            },
+          ],
+        };
+
+        if (radarChart) {
+          radarChart.destroy();
+        }
+
+        radarChart = new Chart(ctx, {
+          type: "radar",
+          data: data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                angleLines: { color: "rgba(255, 255, 255, 0.2)" },
+                grid: { color: "rgba(255, 255, 255, 0.2)" },
+                pointLabels: {
+                  color: "#F1F5F9",
+                  font: { size: 14 },
+                },
+                ticks: {
+                  display: false,
+                  max: 5,
+                  stepSize: 1,
+                  color: "#F1F5F9",
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  color: "#F1F5F9",
+                  font: { size: 14 },
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    let label = context.dataset.label || "";
+                    if (label) {
+                      label += ": ";
+                    }
+                    label += context.parsed.r;
+                    return label;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      function renderChart(filter) {
+        const ctx = document.getElementById("mainChart").getContext("2d");
+
+        const allData = {
+          labels: ["Furgoneta", "Camión", "Motocicleta"],
+          datasets: [
+            {
+              label: "Costo Operativo Promedio (USD)",
+              data: [120.5, 250.75, 45.2],
+              backgroundColor: ["#14B8A6", "#F59E0B", "#A855F7"],
+              borderColor: ["#0D9488", "#D97706", "#9333EA"],
+              borderWidth: 1,
+              borderRadius: 8,
+            },
+          ],
+        };
+
+        let dataToShow;
+        if (filter === "todos") {
+          dataToShow = allData;
+        } else {
+          const index = allData.labels.findIndex(
+            (label) => label.toLowerCase() === filter
+          );
+          if (index > -1) {
+            dataToShow = {
+              labels: [allData.labels[index]],
+              datasets: [
+                {
+                  ...allData.datasets[0],
+                  data: [allData.datasets[0].data[index]],
+                  backgroundColor: [allData.datasets[0].backgroundColor[index]],
+                  borderColor: [allData.datasets[0].borderColor[index]],
+                },
+              ],
+            };
+          } else {
+            dataToShow = allData;
+          }
+        }
+
+        if (mainChart) {
+          mainChart.destroy();
+        }
+
+        mainChart = new Chart(ctx, {
+          type: "bar",
+          data: dataToShow,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "Costo Promedio (USD)",
+                  color: "#F1F5F9",
+                },
+                ticks: { color: "#CBD5E1" },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+              },
+              x: {
+                ticks: { color: "#CBD5E1" },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+              },
+            },
+            plugins: {
+              legend: {
+                display: false,
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    let label = context.dataset.label || "";
+                    if (label) {
+                      label += ": ";
+                    }
+                    if (context.parsed.y !== null) {
+                      label += new Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "USD",
+                      }).format(context.parsed.y);
+                    }
+                    return label;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
